@@ -65,6 +65,18 @@ class DeckViewModel(app: Application) : AndroidViewModel(app) {
                  else "Custom mode: max 2 nonbasic copies."
     }
 
+    fun changeScanLanguage(value: String) {
+        require(value in listOf("auto", "en", "it", "es"))
+        scanLanguage = value
+        prefs.edit().putString("scan_language", value).apply()
+        status = "Card language: " + when (value) {
+            "it" -> "Italiano"
+            "es" -> "Español"
+            "en" -> "English"
+            else -> "Auto (EN/IT/ES)"
+        }
+    }
+
     fun setScanning(value: Boolean) {
         scanning = value
         status = if (value) "Scanning resumed." else "Scanning paused."
