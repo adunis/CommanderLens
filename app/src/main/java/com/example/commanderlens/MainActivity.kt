@@ -129,15 +129,15 @@ private fun CommanderHome(vm: DeckViewModel) {
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.width(9.dp))
-            TextButton(onClick = { vm.setScanning(!vm.scanning) }) {
+            TextButton(onClick = { vm.changeScanning(!vm.scanning) }) {
                 Text(if (vm.scanning) "Pause" else "Resume", color = Mint)
             }
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Max nonbasic copies", color = SecondaryText, fontSize = 12.sp, modifier = Modifier.weight(1f))
-            SmallChoice("1 · EDH", selected = vm.maxCopies == 1) { vm.setMaxCopies(1) }
+            SmallChoice("1 · EDH", selected = vm.maxCopies == 1) { vm.changeMaxCopies(1) }
             Spacer(Modifier.width(6.dp))
-            SmallChoice("2 · Custom", selected = vm.maxCopies == 2) { vm.setMaxCopies(2) }
+            SmallChoice("2 · Custom", selected = vm.maxCopies == 2) { vm.changeMaxCopies(2) }
         }
         Spacer(Modifier.height(12.dp))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
