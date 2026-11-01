@@ -100,6 +100,7 @@ private fun CommanderHome(vm: DeckViewModel) {
             if (hasPermission) {
                 CameraScanner(
                     onDetected = { vm.scanCandidate(it) },
+                    onOcrText = { vm.reportOcr(it) },
                     modifier = Modifier.fillMaxSize()
                 )
                 if (!vm.scanning) {
@@ -133,6 +134,14 @@ private fun CommanderHome(vm: DeckViewModel) {
                 Text(if (vm.scanning) "Pause" else "Resume", color = Mint)
             }
         }
+        Text(
+            "Camera reads: ${vm.lastOcr}",
+            color = SecondaryText,
+            fontSize = 11.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(Modifier.height(5.dp))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Max nonbasic copies", color = SecondaryText, fontSize = 12.sp, modifier = Modifier.weight(1f))
             SmallChoice("1 · EDH", selected = vm.maxCopies == 1) { vm.changeMaxCopies(1) }

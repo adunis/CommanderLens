@@ -30,7 +30,10 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
-private class LiveCardAnalyzer(private val accept: (String) -> Boolean) : ImageAnalysis.Analyzer {
+private class LiveCardAnalyzer(
+    private val accept: (String) -> Boolean,
+    private val reportOcr: (String?) -> Unit
+) : ImageAnalysis.Analyzer {
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private val gate = ScanGate()
     private val processing = AtomicBoolean(false)
@@ -61,6 +64,7 @@ private class LiveCardAnalyzer(private val accept: (String) -> Boolean) : ImageA
             recognizer.process(image)
                 .addOnSuccessListener { result ->
                     val text = selectTitleLine(result, uprightWidth, uprightHeight)
+                    reportOcr(text)
                     val stableName = gate.observe(text)
                     if (stableName != null && accept(stableName)) gate.accepted(stableName)
                 }
@@ -100,12 +104,14 @@ private class LiveCardAnalyzer(private val accept: (String) -> Boolean) : ImageA
 @Composable
 fun CameraScanner(
     onDetected: (String) -> Boolean,
+    onOcrText: (String?) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val owner = LocalLifecycleOwner.current
     // Use updated callback without rebinding the camera when the deck state changes.
     val latestCallback = rememberUpdatedState(onDetected)
+    val latestOcrCallback = rememberUpdatedState(onOcrText)
     val previewView = remember(context) {
         PreviewView(context).apply {
             scaleType = PreviewView.ScaleType.FILL_CENTER
@@ -113,7 +119,10 @@ fun CameraScanner(
         }
     }
     DisposableEffect(owner, previewView) {
-        val analyzer = LiveCardAnalyzer { candidate -> latestCallback.value(candidate) }
+        val analyzer = LiveCardAnalyzer(
+            accept = { candidate -> latestCallback.value(candidate) },
+            reportOcr = { value -> latestOcrCallback.value(value) }
+        )
         val executor = Executors.newSingleThreadExecutor()
         val providerFuture = ProcessCameraProvider.getInstance(context)
         val disposed = AtomicBoolean(false)

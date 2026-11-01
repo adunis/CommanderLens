@@ -1,6 +1,6 @@
 # CommanderLens (Android / Kotlin)
 
-Live Magic: The Gathering Commander card scanner. **Version 0.2: English, Italian and Spanish printed card-name recognition.**
+Live Magic: The Gathering Commander card scanner. **Version 0.2.1: Italian/Spanish basic-land matching fix and live OCR diagnostics.**
 
 ## Features
 
@@ -78,3 +78,10 @@ Scryfall asks apps to stay below 10 requests/second. The app analyzes at most ~2
 - `DeckRules.kt`: copy limit and basic-land classification
 - `DeckViewModel.kt`: state and persistent storage
 - `tests/ScannerRulesTest.kt`: pure Kotlin logic tests
+
+## v0.2.1 fixes
+
+- Fixes incorrect ambiguity for basic lands: MTGJSON aliases such as `Palude -> Swamp` and `Palude -> Swamp // Swamp` now resolve to the same English card. Applies to `Isola`, `Pianura`, `Foresta`, `Montagna`, and Spanish basics.
+- Shows **Camera reads:** under the scanner to distinguish OCR/framing failures from dictionary lookup failures. If it shows the correct word but the card is not added, try manual entry and check the status/error.
+- Adds JVM unit tests for real-world duplicates; CI runs these before building the APK.
+- In Auto mode, a genuine cross-language collision such as `Pantano` (Swamp in Spanish, Quagmire in Italian) is intentionally ambiguous; choose **ES** for a Spanish basic-land scan.

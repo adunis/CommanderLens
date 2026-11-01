@@ -56,9 +56,24 @@ class LocalizedNameIndex private constructor(
     }
 
     private fun uniqueEnglishMatch(candidates: List<Match>, language: String): Match? {
-        val filtered = candidates.filter { language == "auto" || it.language == language }
-        return if (filtered.map { normalizeName(it.englishName) }.distinct().size == 1) filtered.firstOrNull() else null
+        // MTGJSON can list both "Swamp" and "Swamp // Swamp" for the
+        // same printed name. They are the same deck card, not ambiguity.
+        val normalized = candidates.asSequence()
+            .filter { language == "auto" || it.language == language }
+            .map { it.copy(englishName = collapseSameFaceName(it.englishName)) }
+            .toList()
+        return if (normalized.map { normalizeName(it.englishName) }.distinct().size == 1)
+            normalized.firstOrNull()
+        else null
     }
+}
+
+/** Some MTGJSON printings use "Island // Island" for a single basic land. */
+internal fun collapseSameFaceName(name: String): String {
+    val faces = name.split(" // ").map { it.trim() }
+    return if (faces.size == 2 && normalizeName(faces[0]) == normalizeName(faces[1]))
+        faces[0]
+    else name
 }
 
 fun normalizePrintedName(name: String): String =

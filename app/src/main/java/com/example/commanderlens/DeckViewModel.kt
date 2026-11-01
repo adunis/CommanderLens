@@ -37,6 +37,13 @@ class DeckViewModel(app: Application) : AndroidViewModel(app) {
         private set
     var lookingUp by mutableStateOf(false)
         private set
+    var lastOcr by mutableStateOf("Waiting for text…")
+        private set
+
+    fun reportOcr(raw: String?) {
+        val display = raw?.trim()?.takeIf { it.isNotEmpty() } ?: "No title detected"
+        if (display != lastOcr) lastOcr = display
+    }
     private var lookupJob: Job? = null
 
     init {
