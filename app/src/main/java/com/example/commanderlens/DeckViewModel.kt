@@ -57,7 +57,7 @@ class DeckViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun setMaxCopies(value: Int) {
+    fun changeMaxCopies(value: Int) {
         require(value in 1..2)
         maxCopies = value
         prefs.edit().putInt("max_copies", value).apply()
@@ -77,7 +77,7 @@ class DeckViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun setScanning(value: Boolean) {
+    fun changeScanning(value: Boolean) {
         scanning = value
         status = if (value) "Scanning resumed." else "Scanning paused."
     }
