@@ -1,11 +1,13 @@
 # CommanderLens (Android / Kotlin)
 
-Live Magic: The Gathering Commander card scanner. **This is source code, not a precompiled APK.**
+Live Magic: The Gathering Commander card scanner. **Version 0.2: English, Italian and Spanish printed card-name recognition.**
 
 ## Features
 
 - Live rear-camera preview with a card placement guide (no photos or video recorded).
 - On-device OCR using Google ML Kit's bundled Latin-script model.
+- Automatic English, Italian, and Spanish printed-name resolution via a compact MTGJSON index generated during the APK build.
+- Language selector: **Auto / EN / IT / ES**. Italian and Spanish cards are saved and exported under their canonical English names.
 - Only sends a *recognized card-name string* to Scryfall, not a video frame.
 - Requires three consistent OCR samples; locks previously counted card until it is removed from view or the recognized name changes.
 - Fetches canonical name and card type from Scryfall, caches recognized results in memory.
@@ -35,9 +37,17 @@ The project includes `.github/workflows/build-apk.yml`. Create a GitHub reposito
 
 - Portrait orientation, bright indirect light, one card centered and mostly filling the guide.
 - Hold the card steady for ~1.5 seconds. Move it completely out of frame before presenting another **physical copy of the same card**.
-- The card name must be readable and use the Latin alphabet; foreign-language names and special layouts may require manual entry.
+- English, Italian, and Spanish printed names are supported. Choose **Auto** for a mixed-language deck, or select a language to avoid ambiguous names. Unusual layouts may still need manual entry.
 - If a card fails to recognize, use the manual search field.
 - Internet is required for Scryfall lookups, but the saved list works offline.
+
+## Localized name index
+
+During GitHub Actions builds, `scripts/build_localized_names.py` downloads MTGJSON `AtomicCards.json.xz`, extracts its Italian and Spanish `foreignData` names and creates `app/src/main/assets/localized_names.tsv`. This compact file is packaged into the APK, so the full dataset is never downloaded to the phone. The original Scryfall lookup remains online to retrieve canonical English names and basic-land type lines.
+
+Android Studio builds must run the generator once before building. `python3 scripts/build_localized_names.py --output app/src/main/assets/localized_names.tsv`
+
+`python3 scripts/test_localized_index.py` tests the generation logic locally. `tests/LocalizedNameIndexTest.kt` tests normalization, language restriction, ambiguous names and minor OCR errors.
 
 ## Current limitations
 
@@ -47,7 +57,8 @@ The project includes `.github/workflows/build-apk.yml`. Create a GitHub reposito
 - Manual adjustments do not affect the camera lock until the card changes or leaves the frame.
 - Cards with explicit exceptions to Commander singleton (e.g. **Relentless Rats**) are **not** automatically given special exceptions beyond basic lands. This is a simplified deck capture tool, not a full Commander legality checker.
 - The 100-card counter does not stop scans at 100; this allows fixing a deck that was scanned imperfectly.
-- No card images, cloud sync, offline Scryfall database, multi-face support, MP4 upload, background scanning, or deck import yet.
+- No card images, cloud sync, offline full Scryfall database, full multi-face recognition, MP4 upload, background scanning, or deck import yet.
+- MTGJSON foreign-language mappings depend on published translations; missing printings or extremely noisy OCR may require manual entry.
 
 ## Privacy
 

@@ -17,12 +17,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - uses: android-actions/setup-android@v3
       - name: Install Android SDK 35
-        run: |
-          echo "ANDROID_HOME=${ANDROID_HOME}"
-          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
-          "$SDKMANAGER" --version
-          "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0'
+        run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Test localized name generator
+        run: python3 scripts/test_localized_index.py
+      - name: Generate Italian and Spanish card name index
+        run: python3 scripts/build_localized_names.py --output app/src/main/assets/localized_names.tsv
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
       - uses: actions/upload-artifact@v4

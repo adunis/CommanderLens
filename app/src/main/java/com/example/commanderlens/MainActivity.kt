@@ -129,17 +129,28 @@ private fun CommanderHome(vm: DeckViewModel) {
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.width(9.dp))
-            TextButton(onClick = { vm.changeScanning(!vm.scanning) }) {
+            TextButton(onClick = { vm.setScanning(!vm.scanning) }) {
                 Text(if (vm.scanning) "Pause" else "Resume", color = Mint)
             }
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Max nonbasic copies", color = SecondaryText, fontSize = 12.sp, modifier = Modifier.weight(1f))
-            SmallChoice("1 · EDH", selected = vm.maxCopies == 1) { vm.changeMaxCopies(1) }
+            SmallChoice("1 · EDH", selected = vm.maxCopies == 1) { vm.setMaxCopies(1) }
             Spacer(Modifier.width(6.dp))
-            SmallChoice("2 · Custom", selected = vm.maxCopies == 2) { vm.changeMaxCopies(2) }
+            SmallChoice("2 · Custom", selected = vm.maxCopies == 2) { vm.setMaxCopies(2) }
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text("Card language", color = SecondaryText, fontSize = 12.sp, modifier = Modifier.weight(1f))
+            SmallChoice("Auto", selected = vm.scanLanguage == "auto") { vm.changeScanLanguage("auto") }
+            Spacer(Modifier.width(4.dp))
+            SmallChoice("EN", selected = vm.scanLanguage == "en") { vm.changeScanLanguage("en") }
+            Spacer(Modifier.width(4.dp))
+            SmallChoice("IT", selected = vm.scanLanguage == "it") { vm.changeScanLanguage("it") }
+            Spacer(Modifier.width(4.dp))
+            SmallChoice("ES", selected = vm.scanLanguage == "es") { vm.changeScanLanguage("es") }
+        }
+        Spacer(Modifier.height(8.dp))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = manualText, onValueChange = { manualText = it },

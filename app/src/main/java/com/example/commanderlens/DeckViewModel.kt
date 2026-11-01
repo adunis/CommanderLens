@@ -25,9 +25,11 @@ data class DeckEntry(
 
 class DeckViewModel(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("commanderlens", 0)
-    private val api = Scryfall()
+    private val api = Scryfall(app.applicationContext)
     val cards = mutableStateListOf<DeckEntry>()
     var maxCopies by mutableStateOf(prefs.getInt("max_copies", 2))
+        private set
+    var scanLanguage by mutableStateOf(prefs.getString("scan_language", "auto") ?: "auto")
         private set
     var scanning by mutableStateOf(true)
         private set
@@ -55,7 +57,7 @@ class DeckViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun changeMaxCopies(value: Int) {
+    fun setMaxCopies(value: Int) {
         require(value in 1..2)
         maxCopies = value
         prefs.edit().putInt("max_copies", value).apply()
@@ -63,7 +65,7 @@ class DeckViewModel(app: Application) : AndroidViewModel(app) {
                  else "Custom mode: max 2 nonbasic copies."
     }
 
-    fun changeScanning(value: Boolean) {
+    fun setScanning(value: Boolean) {
         scanning = value
         status = if (value) "Scanning resumed." else "Scanning paused."
     }
@@ -89,7 +91,8 @@ class DeckViewModel(app: Application) : AndroidViewModel(app) {
         status = "Identifying: $rawName ..."
         lookupJob = viewModelScope.launch {
             try {
-                val result = withContext(Dispatchers.IO) { api.findByName(rawName) }
+                val language = scanLanguage
+                val result = withContext(Dispatchers.IO) { api.findByName(rawName, language) }
                 when (result) {
                     is Scryfall.Result.Found -> addResolvedCard(result.card)
                     is Scryfall.Result.Error -> status = result.reason
